@@ -9,6 +9,7 @@ import org.openqa.selenium.support.ui.Wait;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
+import java.util.Comparator;
 import java.util.List;
 
 public class UIActions {
@@ -47,6 +48,27 @@ public class UIActions {
         return wait.until(driver1 -> {
            List<WebElement> webElements = driver1.findElements(element.getBy());
            return webElements.stream().map(WebElement::getText).toList();
+        });
+    }
+
+    public void waitUntilIntegerElementsAreSorted(UIElement element)
+    {
+        Wait<WebDriver> wait = new FluentWait<>(driver)
+                .withTimeout(Duration.ofSeconds(element.getMaxWaitTime()))
+                .pollingEvery(Duration.ofMillis(500))
+                .ignoring(NoSuchElementException.class)
+                .ignoring(StaleElementReferenceException.class);
+        wait.until(driver1 -> {
+            List<String> webElementsText = getElementsText(element);
+
+            List<Integer> actualList = webElementsText.stream()
+                        .map(s -> Integer.parseInt(s.replace(",", "")))
+                        .toList();
+
+            List<Integer> sortedList = actualList.stream()
+                    .sorted(Comparator.reverseOrder())
+                    .toList();
+            return actualList.equals(sortedList);
         });
     }
 

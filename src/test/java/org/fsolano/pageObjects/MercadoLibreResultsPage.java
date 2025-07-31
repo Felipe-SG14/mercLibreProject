@@ -30,9 +30,9 @@ public class MercadoLibreResultsPage extends WebApp {
     @Element(selectorType = SelectorType.XPATH, selector = "(//h3[@class='poly-component__title-wrapper']//a)[position() <= 5]")
     private UIElement firstFiveProductNames;
 
-    @Element(selectorType = SelectorType.XPATH, selector = "(//div[@class='poly-component__price']" +
-            "//div[@class='poly-price__current']//span[@class='andes-money-amount__fraction'])" +
-            "[position() <= 5]")
+    @Element(selectorType = SelectorType.XPATH, selector = "(//div[@class='poly-card__content']//div[@class='poly-component__price' " +
+            "and not(ancestor::div[@class='poly-component__buy-box'])]//div[@class='poly-price__current']" +
+            "//span[@class='andes-money-amount__fraction'])[position() <= 5]")
     private UIElement firstFiveProductPrices;
 
     public MercadoLibreResultsPage(UIActions uiActions)
@@ -70,6 +70,7 @@ public class MercadoLibreResultsPage extends WebApp {
     }
 
     public void printFirstFiveProducts() {
+        uiActions.waitUntilIntegerElementsAreSorted(firstFiveProductPrices);
         List<String> productNames = uiActions.getElementsText(firstFiveProductNames);
         List<Integer> actualProductPrices = uiActions.getElementsText(firstFiveProductPrices)
                 .stream().map(string -> Integer.parseInt(string.replace(",",""))).toList();
