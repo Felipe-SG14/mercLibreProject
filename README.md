@@ -2,7 +2,8 @@
 
 # 🧪 Running Tests
 
-This project uses **Apache Maven** as the build and dependency management tool. Below are the instructions to run unit tests in this project.
+This project uses **Apache Maven** as the build and dependency management tool.
+Below are the instructions to run the tests defined in the project.
 
 ---
 
@@ -63,7 +64,7 @@ mvn test -Ddriver=Chrome
 mvn test -Ddriver=Edge
 ```
 
-Keep in mind that if the project is in a Windows environment, 
+Keep in mind that if you are using Windows CMD, 
 the command can be the following (in case you want to pass the environment variable):
 
 ```bash
