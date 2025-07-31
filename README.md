@@ -14,7 +14,7 @@ Before running tests, ensure the following tools are installed:
 - **Git**
 - **Java Development Kit (JDK)**
 - **Apache Maven**
-- **Google Chrome** or **Microsoft Edge**
+- **Google Chrome** or **Microsoft Edge** or **Firefox**
 
 You can verify installation by running:
 
@@ -62,6 +62,9 @@ mvn test -Ddriver=Chrome
 ```
 ```bash
 mvn test -Ddriver=Edge
+```
+```bash
+mvn test -Ddriver=Firefox
 ```
 
 Keep in mind that if you are using Windows CMD, 
