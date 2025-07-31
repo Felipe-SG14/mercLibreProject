@@ -1,6 +1,6 @@
 package org.fsolano.elements;
 
-import org.fsolano.annotations.Locator;
+import org.fsolano.annotations.Element;
 import org.fsolano.enums.SelectorType;
 import org.fsolano.enums.WaitType;
 import org.openqa.selenium.By;
@@ -10,8 +10,10 @@ import java.lang.reflect.Field;
 public class UIElement {
 
     private By by;
+    private SelectorType selectorType;
+    private String selectorValue;
     private WaitType waitType;
-    private int maxWaitSeconds;
+    private int maxWaitTime;
 
     public By getBy() {
         return by;
@@ -19,6 +21,22 @@ public class UIElement {
 
     public void setBy(By by) {
         this.by = by;
+    }
+
+    public String getSelectorValue() {
+        return selectorValue;
+    }
+
+    public void setSelectorValue(String selectorValue) {
+        this.selectorValue = selectorValue;
+    }
+
+    public SelectorType getSelectorType() {
+        return selectorType;
+    }
+
+    public void setSelectorType(SelectorType selectorType) {
+        this.selectorType = selectorType;
     }
 
     public WaitType getWaitType() {
@@ -29,41 +47,55 @@ public class UIElement {
         this.waitType = waitType;
     }
 
-    public int getMaxWaitSeconds() {
-        return maxWaitSeconds;
+    public int getMaxWaitTime() {
+        return maxWaitTime;
     }
 
-    public void setMaxWaitSeconds(int maxWaitSeconds) {
-        this.maxWaitSeconds = maxWaitSeconds;
+    public void setMaxWaitTime(int maxWaitTime) {
+        this.maxWaitTime = maxWaitTime;
     }
 
     private UIElement(Builder builder) {
         this.by = builder.by;
+        this.selectorType = builder.selectorType;
+        this.selectorValue = builder.selectorValue;
         this.waitType = builder.waitType;
-        this.maxWaitSeconds = builder.maxWaitSeconds;
+        this.maxWaitTime = builder.maxWaitTime;
     }
 
-    public static UIElement dynamicElement(Enum<?> enumValue, String... args) {
-        try
-        {
-            Class<?> enumClass = enumValue.getDeclaringClass();
-            Field field = enumClass.getField(enumValue.name());
-            Locator locator = field.getAnnotation(Locator.class);
-            if (locator == null) {
-                throw new IllegalArgumentException("Enum " + enumValue + " does not have @Locator annotation");
+    public static void initElements(Object pageObject)
+    {
+        Class<?> clazz = pageObject.getClass();
+        for (Field field : clazz.getDeclaredFields()) {
+            if (field.isAnnotationPresent(Element.class)) {
+                Element annotation = field.getAnnotation(Element.class);
+                if (annotation == null) {
+                    throw new IllegalArgumentException("Element " + field.getName() + " does not have @Element annotation");
+                }
+                SelectorType selectorType = annotation.selectorType();
+                String selectorValue = annotation.selector();
+                By by = getBy(selectorType, selectorValue);
+                WaitType waitType = annotation.waitType();
+                int maxWaitTime = annotation.maxWaitTime();
+                try {
+                    field.setAccessible(true);
+                    field.set(pageObject, new Builder()
+                            .setBy(by)
+                            .setSelectorType(selectorType)
+                            .setSelectorValue(selectorValue)
+                            .setWaitType(waitType)
+                            .setMaxWaitTime(maxWaitTime)
+                            .build());
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
             }
-            SelectorType selectorType = locator.type();
-            String selector = locator.value();
-            for (String arg : args) {
-                selector = selector.replaceFirst("\\?", arg);
-            }
-            By by = getBy(selectorType, selector);
-            return new Builder().selector(by).build();
         }
-        catch (NoSuchFieldException e)
-        {
-            throw new RuntimeException("Error creating dynamic element: ", e);
-        }
+    }
+
+    public void dynamicElement(Object... args) {
+        this.selectorValue = String.format(this.selectorValue, args);
+        this.by = getBy(this.selectorType, this.selectorValue);
     }
 
     private static By getBy(SelectorType selectorType, String selector) {
@@ -81,40 +113,36 @@ public class UIElement {
 
     public static class Builder {
         private By by;
-        private WaitType waitType = WaitType.NONE;
-        private int maxWaitSeconds = 10;
+        private SelectorType selectorType;
+        private String selectorValue;
+        private WaitType waitType = WaitType.VISIBLE;
+        private int maxWaitTime = 10;
 
-        public Builder selector(By by)
+        public Builder setBy(By by)
         {
             this.by = by;
             return this;
         }
 
-        public Builder selector(Enum<?> enumValue) {
-            try {
-                Class<?> enumClass = enumValue.getDeclaringClass();
-                Field field = enumClass.getField(enumValue.name());
-                Locator locator = field.getAnnotation(Locator.class);
-                if (locator == null) {
-                    throw new IllegalArgumentException("Enum " + enumValue + " does not have @Locator annotation");
-                }
-                SelectorType selectorType = locator.type();
-                String selector = locator.value();
-                this.by = getBy(selectorType, selector);;
-
-                return this;
-            } catch (NoSuchFieldException e) {
-                throw new RuntimeException("Error creating by attribute: ", e);
-            }
+        public Builder setSelectorType(SelectorType selectorType)
+        {
+            this.selectorType = selectorType;
+            return this;
         }
 
-        public Builder waitType(WaitType waitType) {
+        public Builder setSelectorValue(String selectorValue)
+        {
+            this.selectorValue = selectorValue;
+            return this;
+        }
+
+        public Builder setWaitType(WaitType waitType) {
             this.waitType = waitType;
             return this;
         }
 
-        public Builder maxWaitSeconds(int seconds) {
-            this.maxWaitSeconds = seconds;
+        public Builder setMaxWaitTime(int seconds) {
+            this.maxWaitTime = seconds;
             return this;
         }
 

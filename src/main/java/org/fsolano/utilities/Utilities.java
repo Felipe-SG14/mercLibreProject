@@ -50,4 +50,10 @@ public class Utilities {
         }
     }
 
+    public static String getScreenshotBase64(WebDriver driver)
+    {
+        TakesScreenshot ts = (TakesScreenshot) driver;
+        return ts.getScreenshotAs(OutputType.BASE64);
+    }
+
 }

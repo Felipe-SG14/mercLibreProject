@@ -21,7 +21,6 @@ public abstract class BaseTest {
     @BeforeMethod(alwaysRun = true)
     protected void beforeMethod() {
         DriverManager.initializeDriver();
-        DriverManager.getDriver().get(ConfigManager.getProperty("mainPage"));
     }
 
     @AfterMethod(alwaysRun = true)

@@ -27,14 +27,7 @@ public class TextExecutionerListener implements ITestListener {
     @Override
     public void onTestSuccess(ITestResult result) {
         ITestListener.super.onTestSuccess(result);
-        Object attemptObj = result.getAttribute("retryAttempt");
-        int attempt = attemptObj != null ? (int) attemptObj : 0;
-        if (attempt > 0) {
-            ExtentTestManager.getTest().pass("✅ Test successfully passed in attempt: " + attempt);
-        }
-        else {
-            ExtentTestManager.getTest().pass("✅ Test successfully passed");
-        }
+        ExtentTestManager.getTest().pass("✅ Test successfully passed");
     }
 
     @Override
@@ -43,15 +36,8 @@ public class TextExecutionerListener implements ITestListener {
         String testCaseName = Utilities.getTestCaseName(result);
         String absoluteFilePath = Paths.OUTPUT_FAILED_IMAGES_PATH + testCaseName + ".png";
         String relativePath = "FailedTestsImages" + File.separator + testCaseName + ".png";
-        Utilities.saveScreenshot(DriverManager.getDriver(),absoluteFilePath);
-        Object attemptObj = result.getAttribute("retryAttempt");
-        int attempt = attemptObj != null ? (int) attemptObj : 0;
-        if (attempt > 0) {
-            ExtentTestManager.getTest().fail("❌ Test failed in attempt: " + attempt);
-        }
-        else {
-            ExtentTestManager.getTest().fail("❌ Test failed:" + result.getThrowable());
-        }
+        Utilities.saveScreenshot(DriverManager.getDriver(), absoluteFilePath);
+        ExtentTestManager.getTest().fail("❌ Test failed:" + result.getThrowable());
         ExtentTestManager.getTest().fail(testCaseName, MediaEntityBuilder.createScreenCaptureFromPath(relativePath).build());
     }
 

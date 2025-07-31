@@ -21,10 +21,6 @@ public class DriverFactory {
                 ChromeOptions chromeOptions = new ChromeOptions();
                 Arrays.stream(options).forEach(chromeOptions::addArguments);
                 yield new ChromeDriver(chromeOptions);
-            case FIREFOX:
-                FirefoxOptions firefoxOptions = new FirefoxOptions();
-                Arrays.stream(options).forEach(firefoxOptions::addArguments);
-                yield new FirefoxDriver(firefoxOptions);
             case EDGE:
                 EdgeOptions edgeOptions = new EdgeOptions();
                 Arrays.stream(options).forEach(edgeOptions::addArguments);
